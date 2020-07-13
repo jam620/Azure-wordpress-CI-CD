@@ -1,0 +1,37 @@
+trigger:
+- master
+
+jobs:
+  - job: prueba
+    displayName: wordpress 
+
+
+    pool:
+        vmImage: ubuntu-18.04
+        demands: node.js 
+
+    steps:
+      - task:  Nodetool@0
+        displayName: 'Install Node.js'
+        inputs:
+          versionSpec: 10.13.0
+
+      - bash: |
+          npm install npm -g
+          npm install grunt-cli -g
+          npm install
+        displayName: 'Install Grunt globally'
+
+      - task: Grunt@0
+        displayName: 'Build wordPress with Grunt'
+        inputs: 
+          gruntFile: Gruntfile.js
+
+      - task: ArchiveFiles@2
+        displayName: 'Archive build files'
+        inputs: 
+          rootFolderOrFile: '$(Build.Repository.LocalPath)/build'
+          includeRootFolder: false
+
+      - task: PublishBuildArtifacts@01
+        displayName: 'Publish Artifact: drop'
